@@ -1,8 +1,11 @@
 import pygame as pg
 
+pg.init()
+pg.time.set_timer(pg.USEREVENT, 1000)
+
 from espacial.entities import Planeta, Nave, Asteroide
-from espacial import niveles, FPS
-import random
+from espacial import niveles, FPS, vel_nivel
+
 
 class Escena:
     def __init__(self, pantalla):
@@ -15,73 +18,74 @@ class Escena:
 class Partida(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
+        self.fuente = pg.font.Font("resources/fonts/FredokaOne-Regular.ttf", 25)
         self.planeta = Planeta(self.pantalla, self.pantalla.get_width(), 
                          self.pantalla.get_height() // 2)
         self.nave = Nave(self.pantalla, 10, 
                          self.pantalla.get_height()//2, 100, 20)
-        self.asteroides = []
-        self.todos = []
-        self.reset()
 
     def reset(self):
         self.asteroides = []
         self.todos = []
         self.todos.append(self.planeta)
         self.todos.append(self.nave)
-        self.contador_vidas = 3
-
-
-    def crea_asteroides(self):
-        for l in range (0, len(niveles[0])):
-            l = Asteroide(self.pantalla, niveles[0][l][0], niveles[0][l][1], 100, 20)
+        
+    def crea_asteroides(self, nivel):
+        for l in range (0, len(niveles[nivel])):
+            l = Asteroide(self.pantalla, niveles[nivel][l][0], niveles[nivel][l][1], 50, 25, vel_nivel[nivel])
             self.asteroides.append(l)
         
         self.todos = self.todos + self.asteroides
 
+    def timer(self):
+        self.text='10'.rjust(3)
+        self.counter = 10
+
     def bucle_ppal(self) -> bool:
-        self.reset()
-        self.crea_asteroides()
-        # Inicializaciones 
+        nivel = 0
+        self.contador_vidas = 3
 
-        while self.contador_vidas > 0:
-            # Este if equivale a
-            # and  len(self.ladrillos) > 0
-            # puesto en la línea del while
-            
-            self.reloj.tick(FPS)
 
-            eventos = pg.event.get()
-            for evento in eventos:
-                if evento.type == pg.QUIT:
-                    return False
+        while self.contador_vidas > 0 and nivel < len(niveles):
+            self.reset()
+            self.crea_asteroides(nivel)
+            self.timer()
 
-            self.pantalla.fill((255, 0, 0))    
-
-            for objeto in self.todos:
-                objeto.mover()
-
-            for asteroide in self.asteroides:
-                #if asteroide.comprobarToque(self.nave):
-                #    print('toque')
-                if (self.nave.x in range (asteroide.x, asteroide.x + asteroide.ancho) or \
-                    self.nave.ancho + self.nave.x in range (asteroide.x, asteroide.x + asteroide.ancho)) and \
-                    (self.nave.y in range (asteroide.y - asteroide.alto, asteroide.y) or \
-                    self.nave.y - self.nave.alto in range (asteroide.y - asteroide.alto, asteroide.y)):
-                    print('choque')
-                    self.asteroides.remove(asteroide)
-                    self.todos.remove(asteroide)
-                    self.contador_vidas -=1
-                    print(self.contador_vidas)
-            
-                    #print ('Y check: ', self.nave.y - self.nave.alto,"(", asteroide.y - asteroide.alto, asteroide.y,")")
-                    #print ('Y check: ', self.nave.y,"(", asteroide.y - asteroide.alto, asteroide.y,")")
-                    #print ('X check: ', self.nave.x,"(", asteroide.x, asteroide.x + asteroide.ancho,")")
-                    #print ('X check: ', self.nave.ancho + self.nave.x,"(", asteroide.x, asteroide.ancho,")")
+            while self.counter >= 0 and self.contador_vidas > 0:
                 
-            for objeto in self.todos:
-                objeto.dibujar()
+                self.reloj.tick(FPS)
 
-            pg.display.flip()
+                eventos = pg.event.get()
+                for evento in eventos:
+                    if evento.type == pg.QUIT:
+                        return False
+                    elif evento.type == pg.USEREVENT:
+                        self.counter -= 1
+                        self.text = str(self.counter).rjust(3)
+
+                self.pantalla.fill((255, 0, 0))    
+
+                for objeto in self.todos:
+                    objeto.mover()
+
+                for asteroide in self.asteroides:
+
+                    if asteroide.comprobarToque(self.nave):
+                        self.asteroides.remove(asteroide)
+                        self.todos.remove(asteroide)
+                        self.contador_vidas -=1
+
+                
+                for objeto in self.todos:
+                    objeto.dibujar()
+
+                texto = self.fuente.render("Tiempo restante: " + self.text + "s | Vidas: " + str(self.contador_vidas), True, (255, 255, 0))
+                print(texto.get_rect())
+
+                self.pantalla.blit(texto, (10, 10))
+
+                pg.display.flip()
+            nivel += 1
 
         return True
 
@@ -102,7 +106,6 @@ class GameOver(Escena):
 
             self.pantalla.fill((30, 30, 255))
             texto = self.fuente.render("GAME OVER", True, (255, 255, 0))
-            print(texto.get_rect())
 
             self.pantalla.blit(texto, (10, 10))
 

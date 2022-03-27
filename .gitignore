@@ -2,3 +2,4 @@ venv/
 .python-version
 .vscode/
 **__pychache__/
+prueba.py

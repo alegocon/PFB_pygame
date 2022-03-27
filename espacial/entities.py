@@ -2,15 +2,14 @@ import pygame as pg
 import random
 
 class Vigneta:
-    def __init__(self, padre, x, y, ancho, alto, color = (255, 255, 255)):
+    def __init__(self, padre, x, y, ancho, alto, vx, color = (255, 255, 255)):
         self.padre = padre
         self.x = x
         self.y = y
         self.color = color
         self.ancho = ancho
         self.alto = alto
-        self.vx = 0
-        self.vy = 0
+        self.vx = vx
 
     @property
     def xcentro(self):
@@ -20,10 +19,11 @@ class Vigneta:
     def ycentro(self):
         return self.y + self.alto // 2
 
-    def intersecta(self, otro) -> bool:
-        #return ((10 in range (self.x, self.x + self.ancho) or otro.ancho+10 in range (self.x, self.x +self.ancho)) and \
-                #otro.y in range (self.y, self.y - self.alto) or otro.y - otro.alto in range (self.y, self.y - self.alto))
-        pass 
+    def intersecta(self, nave) -> bool:
+        return (nave.x in range (self.x, self.x + self.ancho) or \
+                nave.ancho + nave.x in range (self.x, self.x + self.ancho)) and \
+                (nave.y in range (self.y - self.alto, self.y) or \
+                nave.y - nave.alto in range (self.y - self.alto, self.y))
 
     def dibujar(self):
         pass
@@ -32,9 +32,9 @@ class Vigneta:
         pass
 
 class Asteroide(Vigneta):
-    def __init__(self, padre, x, y, ancho, alto, color = (255, 255, 255)):
-        super().__init__(padre, x, y, ancho, alto, color)
-        self.vx = 2
+    def __init__(self, padre, x, y, ancho, alto, vx, color = (255, 255, 255)):
+        super().__init__(padre, x, y, ancho, alto, vx, color)
+        self.vx = vx
         self.x_ini = x
         self.y_ini = y
 
@@ -44,6 +44,9 @@ class Asteroide(Vigneta):
             self.x = self.padre.get_width()
             self.y = self.y + random.randint(-50,50)
 
+    def comprobarToque(self, nave):
+        if self.intersecta(nave):
+            return True
     
     def dibujar(self):
         pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
@@ -51,7 +54,7 @@ class Asteroide(Vigneta):
 class Nave(Vigneta):
     def __init__(self, padre, x, y, ancho, alto, color = (255, 255, 0)):
         super().__init__(padre, x, y, ancho, alto, color)
-        self.vy = 1
+        self.vy = 2
 
     def dibujar(self):
         pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
