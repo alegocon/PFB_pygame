@@ -32,7 +32,7 @@ class Vigneta:
         pass
 
 class Asteroide(Vigneta):
-    def __init__(self, padre, x, y, ancho, alto, vx, color = (255, 255, 255)):
+    def __init__(self, padre, x, y, ancho, alto, vx, color = (0, 0, 255)):
         super().__init__(padre, x, y, ancho, alto, vx, color)
         self.vx = vx
         self.x_ini = x
@@ -52,9 +52,19 @@ class Asteroide(Vigneta):
         pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
 
 class Nave(Vigneta):
-    def __init__(self, padre, x, y, ancho, alto, color = (255, 255, 0)):
-        super().__init__(padre, x, y, ancho, alto, color)
+    def __init__(self, padre, x, y, ancho, alto, vx, color = (0, 255, 0)):
+        super().__init__(padre, x, y, ancho, alto, vx, color)
         self.vy = 2
+        self.vx = 1
+        self.x_ini = 10
+        self.y_ini = self.padre.get_height()//2
+        self.viva = True
+
+    def reset(self):
+        self.x = self.x_ini
+        self.y = self.y_ini
+        self.vy = 2
+        self.viva = True
 
     def dibujar(self):
         pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
@@ -66,8 +76,8 @@ class Nave(Vigneta):
         if teclas[pg.K_DOWN]:
             self.y += self.vy
 
-        if self.y <= 0:
-            self.y = 0
+        if self.y <= 30:
+            self.y = 30
         if self.y + self.alto >= self.padre.get_height():
             self.y = self.padre.get_height() - self.alto
 

@@ -22,7 +22,7 @@ class Partida(Escena):
         self.planeta = Planeta(self.pantalla, self.pantalla.get_width(), 
                          self.pantalla.get_height() // 2)
         self.nave = Nave(self.pantalla, 10, 
-                         self.pantalla.get_height()//2, 100, 20)
+                         self.pantalla.get_height()//2, 100, 20, 2)
 
     def reset(self):
         self.asteroides = []
@@ -51,7 +51,7 @@ class Partida(Escena):
             self.crea_asteroides(nivel)
             self.timer()
 
-            while self.counter >= 0 and self.contador_vidas > 0:
+            while self.counter >= 0 and self.contador_vidas > 0 and self.nave.viva:
                 
                 self.reloj.tick(FPS)
 
@@ -73,19 +73,30 @@ class Partida(Escena):
                     if asteroide.comprobarToque(self.nave):
                         self.asteroides.remove(asteroide)
                         self.todos.remove(asteroide)
-                        self.contador_vidas -=1
+                        self.nave.viva = False
 
-                
                 for objeto in self.todos:
                     objeto.dibujar()
 
-                texto = self.fuente.render("Tiempo restante: " + self.text + "s | Vidas: " + str(self.contador_vidas), True, (255, 255, 0))
-                print(texto.get_rect())
+                Marcador = self.fuente.render("Tiempo restante: " + self.text + "s | Vidas: " + str(self.contador_vidas) + " | Nivel " + str(nivel), True, (255, 255, 0))
+                print(Marcador.get_rect())
 
-                self.pantalla.blit(texto, (10, 10))
+                self.pantalla.blit(Marcador, (700, 10))
 
                 pg.display.flip()
-            nivel += 1
+
+            if self.nave.viva:
+                while self.nave.x <= 900:
+                    self.pantalla.fill((255, 0, 0))  
+                    self.nave.x += self.nave.vx
+                    self.planeta.dibujar()
+                    self.nave.dibujar()
+                    pg.display.flip()
+                self.nave.reset()
+                nivel += 1
+            else:
+                self.contador_vidas -=1
+                self.nave.reset()
 
         return True
 
