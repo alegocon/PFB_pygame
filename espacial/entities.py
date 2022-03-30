@@ -52,12 +52,23 @@ class Asteroide(Vigneta):
         pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
 
 class Nave(Vigneta):
-    def __init__(self, padre, x, y, ancho, alto, vx, color = (0, 255, 0)):
-        super().__init__(padre, x, y, ancho, alto, vx, color)
+    def __init__(self, padre, x, y, vx):
+        self.images = []
+        i = 0
+        for i in range(3):
+            self.imagen_nave = pg.image.load(f"./resources/img/nave-{i}.png")
+            SCALED_NAVE = (100, 51)
+            self.images.append(pg.transform.scale(self.imagen_nave, SCALED_NAVE))
+        self.nave_activa = 0
+        self.frecuencia = 10
+        self.contador_frames = 0
+        self.image = self.images[self.nave_activa]
+        self.rect = self.image.get_rect()
+        super().__init__(padre, x, y, self.rect.w, self.rect.h // 2, vx)
         self.vy = 2
-        self.vx = 1
+        self.vx = 0.8
         self.x_ini = 10
-        self.y_ini = self.padre.get_height()//2
+        self.y_ini = 0
         self.viva = True
 
     def reset(self):
@@ -67,7 +78,14 @@ class Nave(Vigneta):
         self.viva = True
 
     def dibujar(self):
-        pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
+        self.padre.blit(self.images[self.nave_activa], (self.x, self.y))
+
+        self.contador_frames += 1
+        if self.contador_frames == self.frecuencia:
+            self.nave_activa += 1
+            if self.nave_activa >= len(self.images):
+                self.nave_activa = 0
+            self.contador_frames = 0
 
     def mover(self):
         teclas = pg.key.get_pressed()
@@ -76,10 +94,10 @@ class Nave(Vigneta):
         if teclas[pg.K_DOWN]:
             self.y += self.vy
 
-        if self.y <= 30:
-            self.y = 30
-        if self.y + self.alto >= self.padre.get_height():
-            self.y = self.padre.get_height() - self.alto
+        if self.y <= self.rect.h //2:
+            self.y = self.rect.h //2
+        if self.y + self.rect.h  >= self.padre.get_height():
+            self.y = self.padre.get_height() - self.rect.h
 
 class Planeta(Vigneta):
     def __init__(self, padre, x, y, color = (255, 255, 255), radio = 200):

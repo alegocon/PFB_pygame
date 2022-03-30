@@ -21,8 +21,8 @@ class Partida(Escena):
         self.fuente = pg.font.Font("resources/fonts/FredokaOne-Regular.ttf", 25)
         self.planeta = Planeta(self.pantalla, self.pantalla.get_width(), 
                          self.pantalla.get_height() // 2)
-        self.nave = Nave(self.pantalla, 10, 
-                         self.pantalla.get_height()//2, 100, 20, 2)
+        self.nave = Nave(self.pantalla, 0, -200, 2)
+        #self.pantalla.get_height()//2, 2
 
     def reset(self):
         self.asteroides = []
@@ -32,14 +32,14 @@ class Partida(Escena):
         
     def crea_asteroides(self, nivel):
         for l in range (0, len(niveles[nivel])):
-            l = Asteroide(self.pantalla, niveles[nivel][l][0], niveles[nivel][l][1], 50, 25, vel_nivel[nivel])
+            l = Asteroide(self.pantalla, niveles[nivel][l][0], niveles[nivel][l][1], 100, 25, vel_nivel[nivel])
             self.asteroides.append(l)
         
         self.todos = self.todos + self.asteroides
 
     def timer(self):
-        self.text='10'.rjust(3)
-        self.counter = 10
+        self.text='30'.rjust(3)
+        self.counter = 30
 
     def bucle_ppal(self) -> bool:
         nivel = 0
@@ -63,7 +63,7 @@ class Partida(Escena):
                         self.counter -= 1
                         self.text = str(self.counter).rjust(3)
 
-                self.pantalla.fill((255, 0, 0))    
+                self.pantalla.fill((0, 0, 0))    
 
                 for objeto in self.todos:
                     objeto.mover()

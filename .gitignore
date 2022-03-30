@@ -3,3 +3,4 @@ venv/
 .vscode/
 **__pychache__/
 prueba.py
+resources/img/nave.psd
