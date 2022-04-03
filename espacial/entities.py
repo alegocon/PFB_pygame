@@ -36,8 +36,6 @@ class Asteroide(Vigneta):
 
         i = l % 3
         self.imagen_ast = pg.image.load(f"./resources/img/ast-{i}.png")
-        SCALED_AST = (75, 50)
-        self.imagen_ast = pg.transform.scale(self.imagen_ast, SCALED_AST)
         self.rect = self.imagen_ast.get_rect()
         
         super().__init__(padre, x, y, self.rect.w, self.rect.h, vx)

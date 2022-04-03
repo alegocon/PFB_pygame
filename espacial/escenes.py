@@ -16,21 +16,23 @@ class Escena:
 
     def bucle_ppal():
         pass
-"""
+
 class Intro(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
         self.fuente = pg.font.Font("resources/fonts/AGENCYR.TTF", 100)
-        self.fuente2 = pg.font.Font("resources/fonts/AGENCYR.TTF", 50)
+        self.fuente2 = pg.font.Font("resources/fonts/AGENCYR.TTF", 30)
+        self.fuente3 = pg.font.Font("resources/fonts/AGENCYR.TTF", 25)
+        self.background = pg.image.load("./resources/img/intro.png")
         self.user_text = ''
 
-        self.input_rect = pg.Rect(200,200,140,70)
+        self.input_rect = pg.Rect(self.pantalla.get_width()//2-70,self.pantalla.get_height()//2+100,150,50)
         self.color_active = pg.Color('lightskyblue3')
         self.color_passive = pg.Color('gray15')
         self.color = self.color_passive
         self.active = False
 
-    def bucle_ppal(self):
+    def bucle_ppal(self, retorno):
 
         while True:
             for evento in pg.event.get():
@@ -39,7 +41,8 @@ class Intro(Escena):
                 
                 if evento.type == pg.KEYDOWN:
                     if evento.key == pg.K_SPACE:
-                        return True
+                        return [True, self.user_text]
+                        
 
                 if evento.type == pg.MOUSEBUTTONDOWN:
                     if self.input_rect.collidepoint(evento.pos):
@@ -54,7 +57,8 @@ class Intro(Escena):
                         else:
                             self.user_text += evento.unicode
 
-            self.pantalla.fill((0, 0, 0))
+            self.pantalla.fill((0,0,0))
+            self.pantalla.blit(self.background, (0,0))
 
             if self.active:
                 self.color = self.color_active
@@ -63,13 +67,22 @@ class Intro(Escena):
         
             pg.draw.rect(self.pantalla,self.color,self.input_rect,2)
 
+            texto = self.fuente.render("THE QUEST", True, (102, 204, 102))
+            texto2 = self.fuente3.render("TU MISIÓN: Encuentra y coloniza nuevos planetas para salvar a la especie humana de su propio exterminio.", True, (102, 204, 102))
+            texto3 = self.fuente3.render("Introduce tu nombre en el cuadro inferior y pulsa la tecla ESPACIO cuando estés listo.", True, (102, 204, 102))
+            texto4 = self.fuente2.render("BUENA SUERTE!", True, (102, 204, 102))
+            texto5 = self.fuente2.render("PLAYER: ", True, (102, 204, 102))
             text_surface = self.fuente2.render(self.user_text,True,(255,255,255))
-            self.pantalla.blit(text_surface,(self.input_rect.x +5,self.input_rect.y + 5))
-            self.input_rect.w=max(100,text_surface.get_width())
-            pg.display.flip()
+        
+            self.pantalla.blit(texto, (self.pantalla.get_width()//2 - texto.get_width()//2 - 200, self.pantalla.get_height()//2 - texto.get_height()//2 -200))
+            self.pantalla.blit(texto2, (self.pantalla.get_width()//2 - texto.get_width()//2 - 200, self.pantalla.get_height()//2 - texto.get_height()//2-50))
+            self.pantalla.blit(texto3, (self.pantalla.get_width()//2 - texto.get_width()//2 - 200, self.pantalla.get_height()//2 - texto.get_height()//2))
+            self.pantalla.blit(texto4, (self.pantalla.get_width()//2 - texto.get_width()//2+100, self.pantalla.get_height()//2 + texto.get_height()//2-40))
+            self.pantalla.blit(texto5, (self.pantalla.get_width()//2 - texto.get_width()//2, self.pantalla.get_height()//2 + 112))
+            self.pantalla.blit(text_surface,(self.input_rect.x +10,self.input_rect.y + 10))
+            self.input_rect.w=max(150,text_surface.get_width())
 
-            #return self.user_text
-"""
+            pg.display.flip()
         
 
 class Partida(Escena):
@@ -106,11 +119,13 @@ class Partida(Escena):
     def timer(self):
         self.counter = self.duracion
 
-    def bucle_ppal(self, puntos): 
+    def bucle_ppal(self, retorno): 
         nivel = 0
         self.contador_vidas = 3
         self.contador_frames = 0
         self.puntuacion = 0
+        self.cuenta = ''
+        self.player = retorno[1]
         
         while self.contador_vidas > 0 and nivel < len(niveles):
             self.reset()
@@ -128,7 +143,7 @@ class Partida(Escena):
                         return False
                     elif evento.type == pg.USEREVENT:
                         self.counter -= 1
-                        self.text = str(self.counter).rjust(3)
+                        self.cuenta = str(self.counter).rjust(3)
 
                 self.pantalla.fill((0, 0, 0))    
 
@@ -158,7 +173,7 @@ class Partida(Escena):
                     self.puntuacion += 25
                     self.contador_frames = 0
 
-                Marcador = self.fuente.render("Puntuacion: " + str(self.puntuacion) + " | Tiempo restante: " + self.text + "s | Vidas: " + str(self.contador_vidas) + " | Nivel " + str(nivel), True, (102, 204, 102))
+                Marcador = self.fuente.render("Puntuacion: " + str(self.puntuacion) + " | Tiempo restante: " + self.cuenta + "s | Vidas: " + str(self.contador_vidas) + " | Nivel " + str(nivel), True, (102, 204, 102))
                 self.pantalla.blit(Marcador, (650, 10))
 
                 pg.display.flip()
@@ -183,8 +198,8 @@ class Partida(Escena):
                         self.pantalla.fill((0, 0, 0)) 
                         Mensaje = self.fuente2.render("BOOM!!!! Te quedan " + str(self.contador_vidas) + " vidas", True, (102, 204, 102))
                         Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
-                        self.pantalla.blit(Mensaje, (300, 200))
-                        self.pantalla.blit(Mensaje2, (300, 500))
+                        self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - Mensaje.get_height()//2))
+                        self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
                         self.planeta.dibujar()
                         self.nave.dibujar()
                         pg.display.flip()
@@ -198,8 +213,8 @@ class Partida(Escena):
                                     self.nave.reset()
                 else:
                     conn = sqlite3.connect('score.db')
-                    conn.execute("INSERT INTO puntuaciones (Puntos) \
-                            VALUES (?)", (self.puntuacion,))
+                    conn.execute("INSERT INTO puntuaciones (Player,Puntos) \
+                            VALUES (?,?)", (self.player, self.puntuacion,))
                     conn.commit()
                     conn.close()               
         return [True, self.puntuacion]
@@ -210,6 +225,8 @@ class GameOver(Escena):
         super().__init__(pantalla)
         self.fuente = pg.font.Font("resources/fonts/AGENCYR.TTF", 100)
         self.fuente2 = pg.font.Font("resources/fonts/AGENCYR.TTF", 50)
+        self.fuente3 = pg.font.Font("resources/fonts/AGENCYR.TTF", 25)
+        self.background = pg.image.load("./resources/img/intro.png")
 
     def bucle_ppal(self, retorno):
         while True:
@@ -222,13 +239,36 @@ class GameOver(Escena):
                         return True
             
             puntuacion = str(retorno[1])
-
-            self.pantalla.fill((30, 30, 255))
             texto = self.fuente.render("GAME OVER", True, (102, 204, 102))
             texto2 = self.fuente2.render("Tu puntuacion fue " + puntuacion, True, (102, 204, 102))
+            texto3 = self.fuente3.render("TOP PUNTUACIONES", True, (102, 204, 102))
+            texto4 = self.fuente3.render("Pulsa tecla ESPACIO para jugar de nuevo", True, (102, 204, 102))
 
-            self.pantalla.blit(texto, (500, 300))
-            self.pantalla.blit(texto2, (500, 500))
+            self.pantalla.blit(self.background, (0,0))
+            self.pantalla.blit(texto, (self.pantalla.get_width()//2 - texto.get_width()//2, self.pantalla.get_height()//2 - texto.get_height()//2-125))
+            self.pantalla.blit(texto2, (self.pantalla.get_width()//2 - texto2.get_width()//2, self.pantalla.get_height()//2 - texto2.get_height()//2-50))
+            self.pantalla.blit(texto3, (self.pantalla.get_width()//2 - texto3.get_width()//2, self.pantalla.get_height()//2 - texto3.get_height()//2+25))
+            self.pantalla.blit(texto4, (self.pantalla.get_width()//2 - texto4.get_width()//2, self.pantalla.get_height()-100))
+            
+            con = sqlite3.connect('score.db')
+            cur = con.cursor()
+            cur.execute("""
+                        SELECT Player,Puntos 
+                        FROM puntuaciones \
+                        ORDER BY Puntos DESC
+                        """
+                )
+            datos = cur.fetchall()
+            cur.close()
 
+            for i in range(3):
+                
+                player = self.fuente3.render(str(datos[i][0]), True, (102, 204, 102))
+                separator = self.fuente3.render(str(40*'.'), True, (102, 204, 102))
+                score = self.fuente3.render(str(datos[i][1]), True, (102, 204, 102))
+                self.pantalla.blit(player, (self.pantalla.get_width()//2-125, self.pantalla.get_height()//2 +50+ 25*i))
+                self.pantalla.blit(separator, (self.pantalla.get_width()//2-75, self.pantalla.get_height()//2 +50+ 25*i))
+                self.pantalla.blit(score, (self.pantalla.get_width()//2+100, self.pantalla.get_height()//2 +50+ 25*i))
+            
             pg.display.flip()
 
