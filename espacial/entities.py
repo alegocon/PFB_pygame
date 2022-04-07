@@ -62,14 +62,12 @@ class Nave(Vigneta):
         self.images = []
         self.explosion = []
         i = 0
-        for i in range(3):
+        for i in range(4):
             self.imagen_nave = pg.image.load(f"./resources/img/nave-{i}.png")
-            SCALED_NAVE = (100, 51)
-            self.images.append(pg.transform.scale(self.imagen_nave, SCALED_NAVE))
-        for i in range(3):
+            self.images.append(self.imagen_nave)
+        for i in range(4):
             self.nave_ex = pg.image.load(f"./resources/img/nave-ex{i}.png")
-            SCALED_NAVE = (100, 51)
-            self.explosion.append(pg.transform.scale(self.nave_ex, SCALED_NAVE))
+            self.explosion.append(self.nave_ex)
 
         self.nave_activa = 0
         self.frecuencia = 60
@@ -82,7 +80,7 @@ class Nave(Vigneta):
         self.vy = 2
         self.vx = 0.8
         self.x_ini = 10
-        self.y_ini = 0
+        self.y_ini = self.padre.get_height() // 2 - self.rect.w//2
         self.viva = True
 
     def reset(self):
@@ -90,6 +88,12 @@ class Nave(Vigneta):
         self.y = self.y_ini
         self.vy = 2
         self.viva = True
+
+    def rotate(self, angle):
+        self.images = []
+        for i in range(4):
+            self.imagen_nave = pg.transform.rotate(pg.image.load(f"./resources/img/nave-{i}.png"),angle)
+            self.images.append(self.imagen_nave)
 
     def dibujar(self):
 
@@ -143,15 +147,12 @@ class Planeta(Vigneta):
         
 class Astronauta(Vigneta):
     def __init__(self, padre, x, y, vx):
-
         self.imagen = pg.image.load(f"./resources/img/astro1.png")
-        SCALED_AST = (100, 60)
-        self.imagen_ast = pg.transform.scale(self.imagen, SCALED_AST)
         self.rect = self.imagen.get_rect()
         
         super().__init__(padre, x, y, self.rect.w, self.rect.h, vx)
         self.vx = -2
-        self.vy = 2
+        self.vy = 1
         self.x_ini = x
         self.y_ini = y
         vy = 0
@@ -175,4 +176,4 @@ class Astronauta(Vigneta):
     
     def dibujar(self):
         #pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
-        self.padre.blit(self.imagen_ast, (self.x, self.y))
+        self.padre.blit(self.imagen, (self.x, self.y))

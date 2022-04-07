@@ -88,36 +88,29 @@ class Intro(Escena):
 class Partida(Escena):
     def __init__(self, pantalla):
         super().__init__(pantalla)
-        self.duracion = 30
         self.fuente = pg.font.Font("resources/fonts/AGENCYR.TTF", 30)
         self.fuente2 = pg.font.Font("resources/fonts/AGENCYR.TTF", 60)
         self.planeta = Planeta(self.pantalla, 1000, 100, 0)
         self.nave = Nave(self.pantalla, 20, -200, 2)
-        self.astronauta = Astronauta(self.pantalla, 2400, 300, 2)
         
-
     def reset(self):
         self.asteroides = []
         self.astronautas = []
         self.todos = []
         self.todos.append(self.planeta)
-        self.todos.append(self.astronauta)
         self.todos.append(self.nave)
 
     def crea_astronautas(self):
-        for i in range (0, 5):
-            i = Astronauta(self.pantalla, random.randint(1200,2400), 300, 2)
-            self.astronautas.append(i)
-        self.todos = self.todos + self.asteroides
+        for l in range (0, 3):
+            l = Astronauta(self.pantalla, random.randint(1200,2400), random.randint(0,600), 5)
+            self.astronautas.append(l)
+        self.todos = self.todos + self.astronautas
         
     def crea_asteroides(self, nivel):
         for l in range (0, len(niveles[nivel])):
             l = Asteroide(self.pantalla, niveles[nivel][l][0], niveles[nivel][l][1], vel_nivel[nivel], l)
             self.asteroides.append(l)
         self.todos = self.todos + self.asteroides
-
-    def timer(self):
-        self.counter = self.duracion
 
     def bucle_ppal(self, retorno): 
         nivel = 0
@@ -128,12 +121,14 @@ class Partida(Escena):
         self.player = retorno[1]
         
         while self.contador_vidas > 0 and nivel < len(niveles):
+            self.cuenta = ''
             self.reset()
+            self.crea_astronautas()
             self.crea_asteroides(nivel)
-            self.timer()
+            self.counter = 10
             self.nave.reset() 
 
-            while self.counter >= 0 and self.contador_vidas > 0 and self.nave.viva:
+            while self.counter > 0 and self.contador_vidas > 0 and self.nave.viva:
                 
                 self.reloj.tick(FPS)
 
@@ -142,8 +137,8 @@ class Partida(Escena):
                     if evento.type == pg.QUIT:
                         return False
                     elif evento.type == pg.USEREVENT:
-                        self.counter -= 1
                         self.cuenta = str(self.counter).rjust(3)
+                        self.counter -= 1
 
                 self.pantalla.fill((0, 0, 0))    
 
@@ -179,17 +174,26 @@ class Partida(Escena):
                 pg.display.flip()
 
             if self.nave.viva:
-                self.puntuacion += self.puntuacion
+                
+                self.nave.y = self.pantalla.get_height() //2 - 100
+
                 while self.nave.x <= 900:
-                    self.pantalla.fill((0, 0, 0))  
-                    self.nave.x += self.nave.vx
+                    self.pantalla.fill((0, 0, 0)) 
+                    self.nave.x += self.nave.vx 
                     self.planeta.dibujar()
+                    if self.nave.x >=600:
+                        self.nave.rotate(180)
                     self.nave.dibujar()
                     Mensaje= self.fuente2.render("Bien hecho! Pasas al nivel " + str(nivel+1), True, (102, 204, 102))
-                    self.pantalla.blit(Mensaje, (300, 300))
+                    Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
+                    self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - Mensaje.get_height()//2))
+                    self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
                     pg.display.flip()
-                self.nave.reset()
+
+                #self.nave.reset()
                 nivel += 1
+                self.nave.rotate(0)
+                pg.event.clear()
 
             else:
                 self.contador_vidas -=1
