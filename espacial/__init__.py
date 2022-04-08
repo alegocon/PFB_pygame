@@ -1,6 +1,6 @@
 FPS = 150
 
-vel_nivel = [2, 2, 2, 2]
+vel_nivel = [2, 2, 2, 2, 2]
 
 niveles = [
 

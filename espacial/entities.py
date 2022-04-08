@@ -72,6 +72,8 @@ class Nave(Vigneta):
         self.nave_activa = 0
         self.frecuencia = 60
         self.contador_frames = 0
+        self.rot_cont = 1
+        self.angle = 0
 
         self.image = self.images[self.nave_activa]
         self.rect = self.image.get_rect()
@@ -82,12 +84,23 @@ class Nave(Vigneta):
         self.x_ini = 10
         self.y_ini = self.padre.get_height() // 2 - self.rect.w//2
         self.viva = True
+        self.aterriza = False
 
     def reset(self):
         self.x = self.x_ini
         self.y = self.y_ini
         self.vy = 2
         self.viva = True
+
+    def avanzar(self):
+        self.x += self.vx
+
+    def rotar(self,i):
+            self.img = pg.image.load(f"./resources/img/nave-{0}.png")
+            self.img_rect = self.img.get_rect()
+            self.angle = 18*i
+            self.rot_img = pg.transform.rotate(self.img, self.angle)
+            self.rot_img_rect = self.rot_img.get_rect()
 
     def rotate(self, angle):
         self.images = []
@@ -97,7 +110,10 @@ class Nave(Vigneta):
 
     def dibujar(self):
 
-        if self.viva:
+        if self.viva and self.aterriza and self.x >=700:
+            self.padre.blit(self.rot_img, (self.rot_img_rect.x + self.x, self.rot_img_rect.y + self.y))
+
+        elif self.viva == True:
             self.padre.blit(self.images[self.nave_activa], (self.x, self.y))
 
             self.contador_frames += 1
@@ -106,6 +122,7 @@ class Nave(Vigneta):
                 if self.nave_activa >= len(self.images):
                     self.nave_activa = 0
                 self.contador_frames = 0
+
         else:
             self.padre.blit(self.explosion[self.nave_activa], (self.x, self.y))
 

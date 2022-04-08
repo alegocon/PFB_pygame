@@ -93,12 +93,15 @@ class Partida(Escena):
         self.planeta = Planeta(self.pantalla, 1000, 100, 0)
         self.nave = Nave(self.pantalla, 20, -200, 2)
         
-    def reset(self):
+    def reset(self, nivel):
+        self.counter = 3
         self.asteroides = []
         self.astronautas = []
         self.todos = []
         self.todos.append(self.planeta)
         self.todos.append(self.nave)
+        self.crea_astronautas()
+        self.crea_asteroides(nivel)
 
     def crea_astronautas(self):
         for l in range (0, 3):
@@ -119,17 +122,14 @@ class Partida(Escena):
         self.puntuacion = 0
         self.cuenta = ''
         self.player = retorno[1]
+        self.nave.viva = retorno[2]
         
-        while self.contador_vidas > 0 and nivel < len(niveles):
-            self.cuenta = ''
-            self.reset()
-            self.crea_astronautas()
-            self.crea_asteroides(nivel)
-            self.counter = 10
-            self.nave.reset() 
+        self.reset(nivel)
+        self.nave.reset()
 
-            while self.counter > 0 and self.contador_vidas > 0 and self.nave.viva:
-                
+        while self.contador_vidas > 0 and nivel < len(niveles)-1:
+            
+            while self.counter >= 0 and self.contador_vidas > 0 and self.nave.viva and nivel <= len(niveles)-1:
                 self.reloj.tick(FPS)
 
                 eventos = pg.event.get()
@@ -170,58 +170,63 @@ class Partida(Escena):
 
                 Marcador = self.fuente.render("Puntuacion: " + str(self.puntuacion) + " | Tiempo restante: " + self.cuenta + "s | Vidas: " + str(self.contador_vidas) + " | Nivel " + str(nivel), True, (102, 204, 102))
                 self.pantalla.blit(Marcador, (650, 10))
-
                 pg.display.flip()
 
-            if self.nave.viva:
-                
-                self.nave.y = self.pantalla.get_height() //2 - 100
-
-                while self.nave.x <= 900:
-                    self.pantalla.fill((0, 0, 0)) 
-                    self.nave.x += self.nave.vx 
-                    self.planeta.dibujar()
-                    if self.nave.x >=600:
-                        self.nave.rotate(180)
-                    self.nave.dibujar()
-                    Mensaje= self.fuente2.render("Bien hecho! Pasas al nivel " + str(nivel+1), True, (102, 204, 102))
-                    Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
-                    self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - Mensaje.get_height()//2))
-                    self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
-                    pg.display.flip()
-
-                #self.nave.reset()
-                nivel += 1
-                self.nave.rotate(0)
-                pg.event.clear()
-
-            else:
-                self.contador_vidas -=1
-                if self.contador_vidas > 0:
-                    while not self.nave.viva:
+                if self.counter == 0 and self.nave.viva and nivel < len(niveles)-1:
+                    self.nave.aterriza = True
+                    self.nave.y = self.pantalla.get_height()//2 - 100
+                    i = 1
+                    contador_frames = 0
+                    while self.nave.x <= 1000:
                         self.pantalla.fill((0, 0, 0)) 
-                        Mensaje = self.fuente2.render("BOOM!!!! Te quedan " + str(self.contador_vidas) + " vidas", True, (102, 204, 102))
+                        self.nave.avanzar()
+                        if self.nave.x > 700:
+                            contador_frames += 1
+                            self.nave.rotar(i)
+                            if contador_frames == 40:
+                                i += 1
+                                contador_frames = 0
+                        self.planeta.dibujar()
+                        self.nave.dibujar()
+                        Mensaje= self.fuente2.render("Bien hecho! Pasas al nivel " + str(nivel+1), True, (102, 204, 102))
                         Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
                         self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - Mensaje.get_height()//2))
                         self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
-                        self.planeta.dibujar()
-                        self.nave.dibujar()
                         pg.display.flip()
+                    nivel += 1
+                    self.reset(nivel)
+                    self.nave.reset()
+                    pg.event.clear()
 
-                        eventos = pg.event.get()
-                        for evento in eventos:
-                            if evento.type == pg.QUIT:
-                                return False
-                            if evento.type == pg.KEYDOWN:
-                                if evento.key == pg.K_SPACE:
-                                    self.nave.reset()
-                else:
-                    conn = sqlite3.connect('score.db')
-                    conn.execute("INSERT INTO puntuaciones (Player,Puntos) \
-                            VALUES (?,?)", (self.player, self.puntuacion,))
-                    conn.commit()
-                    conn.close()               
-        return [True, self.puntuacion]
+                elif not self.nave.viva:
+                    self.contador_vidas -=1
+                    if self.contador_vidas > 0:
+                        while not self.nave.viva:
+                            self.pantalla.fill((0, 0, 0)) 
+                            Mensaje = self.fuente2.render("BOOM!!!! Te quedan " + str(self.contador_vidas) + " vidas", True, (102, 204, 102))
+                            Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
+                            self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - Mensaje.get_height()//2))
+                            self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
+                            self.planeta.dibujar()
+                            self.nave.dibujar()
+                            pg.display.flip()
+
+                            eventos = pg.event.get()
+                            for evento in eventos:
+                                if evento.type == pg.QUIT:
+                                    return False
+                                if evento.type == pg.KEYDOWN:
+                                    if evento.key == pg.K_SPACE:
+                                        self.nave.reset()
+                                        self.reset(nivel)
+                    else:
+                        conn = sqlite3.connect('score.db')
+                        conn.execute("INSERT INTO puntuaciones (Player,Puntos) \
+                                VALUES (?,?)", (self.player, self.puntuacion,))
+                        conn.commit()
+                        conn.close() 
+              
+        return [True, self.puntuacion, self.nave.viva]
 
 
 class GameOver(Escena):
@@ -241,9 +246,13 @@ class GameOver(Escena):
                 if evento.type == pg.KEYDOWN:
                     if evento.key == pg.K_SPACE:
                         return True
-            
+            if retorno[2]:
+                Mensaje = "GAME OVER"
+            else:
+                Mensaje = "JUEGO COMPLETO"
+
             puntuacion = str(retorno[1])
-            texto = self.fuente.render("GAME OVER", True, (102, 204, 102))
+            texto = self.fuente.render(Mensaje, True, (102, 204, 102))
             texto2 = self.fuente2.render("Tu puntuacion fue " + puntuacion, True, (102, 204, 102))
             texto3 = self.fuente3.render("TOP PUNTUACIONES", True, (102, 204, 102))
             texto4 = self.fuente3.render("Pulsa tecla ESPACIO para jugar de nuevo", True, (102, 204, 102))

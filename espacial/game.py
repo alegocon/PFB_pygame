@@ -13,20 +13,21 @@ class Game:
         player = 'Jugador'
         puntos = int
         escena_activa = 0
+        estado = ''
         game_active = [True,]
         while game_active:
             if escena_activa == 0:
-                game_active = self.escenas[escena_activa].bucle_ppal([True,])
+                game_active = self.escenas[escena_activa].bucle_ppal([True,'',''])
                 player = game_active[1]
                 escena_activa += 1
 
-            game_active = self.escenas[escena_activa].bucle_ppal([True, player])
+            game_active = self.escenas[escena_activa].bucle_ppal([True, player, estado])
 
             if escena_activa == 1:
                 puntos = game_active[1]            
                 escena_activa += 1
 
-            game_active = self.escenas[escena_activa].bucle_ppal([True, puntos])
+            game_active = self.escenas[escena_activa].bucle_ppal([True, puntos, estado])
             escena_activa += 1
             
             if escena_activa == len(self.escenas):
