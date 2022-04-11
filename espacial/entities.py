@@ -77,7 +77,7 @@ class Nave(Vigneta):
 
         self.image = self.images[self.nave_activa]
         self.rect = self.image.get_rect()
-        
+
         super().__init__(padre, x, y, self.rect.w, self.rect.h // 2, vx)
         self.vy = 2
         self.vx = 0.8
@@ -96,21 +96,14 @@ class Nave(Vigneta):
         self.x += self.vx
 
     def rotar(self,i):
-            self.img = pg.image.load(f"./resources/img/nave-{0}.png")
-            self.img_rect = self.img.get_rect()
-            self.angle = 18*i
-            self.rot_img = pg.transform.rotate(self.img, self.angle)
-            self.rot_img_rect = self.rot_img.get_rect()
-
-    def rotate(self, angle):
-        self.images = []
-        for i in range(4):
-            self.imagen_nave = pg.transform.rotate(pg.image.load(f"./resources/img/nave-{i}.png"),angle)
-            self.images.append(self.imagen_nave)
+        self.img = pg.image.load(f"./resources/img/nave-{0}.png")
+        self.centro = self.img.get_rect().center
+        self.angle = 18*i
+        self.rot_img = pg.transform.rotate(self.img, self.angle)
+        self.rot_img_rect = self.rot_img.get_rect(center = self.centro)
 
     def dibujar(self):
-
-        if self.viva and self.aterriza and self.x >=700:
+        if self.viva and self.aterriza and self.x >=500:
             self.padre.blit(self.rot_img, (self.rot_img_rect.x + self.x, self.rot_img_rect.y + self.y))
 
         elif self.viva == True:
@@ -132,7 +125,6 @@ class Nave(Vigneta):
                 if self.nave_activa >= len(self.explosion):
                     self.nave_activa = 0
                 self.contador_frames = 0
-
 
     def mover(self):
         teclas = pg.key.get_pressed()

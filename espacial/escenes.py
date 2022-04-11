@@ -33,6 +33,8 @@ class Intro(Escena):
         self.active = False
 
     def bucle_ppal(self, retorno):
+        pg.mixer.music.load(f"./resources/sounds/Sound_intro.mp3")
+        pg.mixer.music.play()
 
         while True:
             for evento in pg.event.get():
@@ -94,7 +96,7 @@ class Partida(Escena):
         self.nave = Nave(self.pantalla, 20, -200, 2)
         
     def reset(self, nivel):
-        self.counter = 3
+        self.counter = 6
         self.asteroides = []
         self.astronautas = []
         self.todos = []
@@ -128,8 +130,11 @@ class Partida(Escena):
         self.nave.reset()
 
         while self.contador_vidas > 0 and nivel < len(niveles)-1:
+            pg.mixer.music.load(f"./resources/sounds/Sound_game.mp3")
+            pg.mixer.music.play()
             
             while self.counter >= 0 and self.contador_vidas > 0 and self.nave.viva and nivel <= len(niveles)-1:
+
                 self.reloj.tick(FPS)
 
                 eventos = pg.event.get()
@@ -174,24 +179,24 @@ class Partida(Escena):
 
                 if self.counter == 0 and self.nave.viva and nivel < len(niveles)-1:
                     self.nave.aterriza = True
-                    self.nave.y = self.pantalla.get_height()//2 - 100
+                    self.nave.y = self.pantalla.get_height()//2
                     i = 1
                     contador_frames = 0
                     while self.nave.x <= 1000:
                         self.pantalla.fill((0, 0, 0)) 
                         self.nave.avanzar()
-                        if self.nave.x > 700:
+                        if self.nave.x > 500:
                             contador_frames += 1
                             self.nave.rotar(i)
-                            if contador_frames == 40:
+                            if contador_frames == 63:
                                 i += 1
                                 contador_frames = 0
                         self.planeta.dibujar()
                         self.nave.dibujar()
                         Mensaje= self.fuente2.render("Bien hecho! Pasas al nivel " + str(nivel+1), True, (102, 204, 102))
-                        Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
-                        self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - Mensaje.get_height()//2))
-                        self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
+                        #Mensaje2 = self.fuente.render("Presiona tecla ESPACIO para continuar", True, (102, 204, 102))
+                        self.pantalla.blit(Mensaje, (self.pantalla.get_width()//2 - Mensaje.get_width()//2, self.pantalla.get_height()//2 - 2*Mensaje.get_height()//2))
+                        #self.pantalla.blit(Mensaje2, (self.pantalla.get_width()//2 - Mensaje2.get_width()//2, self.pantalla.get_height()//2 - Mensaje2.get_height()//2 + 75))
                         pg.display.flip()
                     nivel += 1
                     self.reset(nivel)
@@ -199,6 +204,8 @@ class Partida(Escena):
                     pg.event.clear()
 
                 elif not self.nave.viva:
+                    pg.mixer.music.load(f"./resources/sounds/Sound_explosion.mp3")
+                    pg.mixer.music.play()
                     self.contador_vidas -=1
                     if self.contador_vidas > 0:
                         while not self.nave.viva:
@@ -219,6 +226,8 @@ class Partida(Escena):
                                     if evento.key == pg.K_SPACE:
                                         self.nave.reset()
                                         self.reset(nivel)
+                                        pg.mixer.music.load(f"./resources/sounds/Sound_game.mp3")
+                                        pg.mixer.music.play()
                     else:
                         conn = sqlite3.connect('score.db')
                         conn.execute("INSERT INTO puntuaciones (Player,Puntos) \
@@ -246,11 +255,11 @@ class GameOver(Escena):
                 if evento.type == pg.KEYDOWN:
                     if evento.key == pg.K_SPACE:
                         return True
-            if retorno[2]:
-                Mensaje = "GAME OVER"
-            else:
+            if retorno[2] == True:
                 Mensaje = "JUEGO COMPLETO"
-
+            else:
+                Mensaje = "GAME OVER"
+            
             puntuacion = str(retorno[1])
             texto = self.fuente.render(Mensaje, True, (102, 204, 102))
             texto2 = self.fuente2.render("Tu puntuacion fue " + puntuacion, True, (102, 204, 102))
