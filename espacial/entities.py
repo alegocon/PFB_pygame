@@ -1,29 +1,20 @@
 import pygame as pg
 import random
 
-class Vigneta:
-    def __init__(self, padre, x, y, ancho, alto, vx, color = (255, 255, 255)):
+class Objeto:
+    def __init__(self, padre, x, y, ancho, alto, vx):
         self.padre = padre
         self.x = x
         self.y = y
-        self.color = color
         self.ancho = ancho
         self.alto = alto
         self.vx = vx
 
-    @property
-    def xcentro(self):
-        return self.x + self.ancho // 2
-
-    @property
-    def ycentro(self):
-        return self.y + self.alto // 2
-
     def intersecta(self, nave) -> bool:
         return (nave.x in range (self.x, self.x + self.ancho) or \
                 nave.ancho + nave.x in range (self.x, self.x + self.ancho)) and \
-                (nave.y in range (self.y - self.alto, self.y) or \
-                nave.y - nave.alto in range (self.y - self.alto, self.y))
+                (nave.y in range (self.y, self.y + self.alto) or \
+                nave.y + nave.alto in range (self.y, self.y + self.alto))
 
     def dibujar(self):
         pass
@@ -31,7 +22,7 @@ class Vigneta:
     def mover(self):
         pass
 
-class Asteroide(Vigneta):
+class Asteroide(Objeto):
     def __init__(self, padre, x, y, vx, l):
 
         i = l % 3
@@ -54,10 +45,9 @@ class Asteroide(Vigneta):
             return True
     
     def dibujar(self):
-        #pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
         self.padre.blit(self.imagen_ast, (self.x, self.y))
 
-class Nave(Vigneta):
+class Nave(Objeto):
     def __init__(self, padre, x, y, vx):
         self.images = []
         self.explosion = []
@@ -138,7 +128,7 @@ class Nave(Vigneta):
         if self.y + self.rect.h  >= self.padre.get_height():
             self.y = self.padre.get_height() - self.rect.h
 
-class Planeta(Vigneta):
+class Planeta(Objeto):
     def __init__(self, padre, x, y, vx):
 
         self.imagen = pg.image.load(f"./resources/img/planet.png")
@@ -154,7 +144,7 @@ class Planeta(Vigneta):
     def dibujar(self):
         self.padre.blit(self.imagen, (self.x, self.y))
         
-class Astronauta(Vigneta):
+class Astronauta(Objeto):
     def __init__(self, padre, x, y, vx):
         self.imagen = pg.image.load(f"./resources/img/astro1.png")
         self.rect = self.imagen.get_rect()
@@ -164,16 +154,15 @@ class Astronauta(Vigneta):
         self.vy = 1
         self.x_ini = x
         self.y_ini = y
-        vy = 0
 
     def mover(self):
         self.x += self.vx
         self.y += self.vy
 
-        if self.y >= 600: #self.padre.get_height() - self.rect.h:
+        if self.y >= 600:
             self.vy *= -1
 
-        if self.y <= 0: #60 + self.rect.h:
+        if self.y <= 0:
             self.vy *= -1
 
         if self.x <= 0:
@@ -184,5 +173,4 @@ class Astronauta(Vigneta):
             return True
     
     def dibujar(self):
-        #pg.draw.rect(self.padre, self.color, (self.x, self.y, self.ancho, self.alto))
         self.padre.blit(self.imagen, (self.x, self.y))

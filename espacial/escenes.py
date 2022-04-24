@@ -96,7 +96,7 @@ class Partida(Escena):
         self.nave = Nave(self.pantalla, 20, -200, 2)
         
     def reset(self, nivel):
-        self.counter = 6
+        self.counter = 20
         self.asteroides = []
         self.astronautas = []
         self.todos = []
