@@ -112,9 +112,9 @@ class Partida(Escena):
         self.todos = self.todos + self.astronautas
         
     def crea_asteroides(self, nivel):
-        for l in range (0, len(niveles[nivel])):
-            l = Asteroide(self.pantalla, niveles[nivel][l][0], niveles[nivel][l][1], vel_nivel[nivel], l)
-            self.asteroides.append(l)
+        for l, coor in enumerate(niveles[nivel]):
+            asteroide = Asteroide(self.pantalla, coor[0], coor[1], vel_nivel[nivel], l)
+            self.asteroides.append(asteroide)
         self.todos = self.todos + self.asteroides
 
     def bucle_ppal(self, retorno): 
@@ -282,15 +282,17 @@ class GameOver(Escena):
                 )
             datos = cur.fetchall()
             cur.close()
-
-            for i in range(3):
-                
-                player = self.fuente3.render(str(datos[i][0]), True, (102, 204, 102))
-                separator = self.fuente3.render(str(40*'.'), True, (102, 204, 102))
-                score = self.fuente3.render(str(datos[i][1]), True, (102, 204, 102))
-                self.pantalla.blit(player, (self.pantalla.get_width()//2-125, self.pantalla.get_height()//2 +50+ 25*i))
-                self.pantalla.blit(separator, (self.pantalla.get_width()//2-75, self.pantalla.get_height()//2 +50+ 25*i))
-                self.pantalla.blit(score, (self.pantalla.get_width()//2+100, self.pantalla.get_height()//2 +50+ 25*i))
+            
+            i = 0
+            for dato in datos:
+                if i <= 2:
+                    player = self.fuente3.render(str(dato[0]), True, (102, 204, 102))
+                    separator = self.fuente3.render(str(40*'.'), True, (102, 204, 102))
+                    score = self.fuente3.render(str(dato[1]), True, (102, 204, 102))
+                    self.pantalla.blit(player, (self.pantalla.get_width()//2-125, self.pantalla.get_height()//2 +50+ 25*i))
+                    self.pantalla.blit(separator, (self.pantalla.get_width()//2-75, self.pantalla.get_height()//2 +50+ 25*i))
+                    self.pantalla.blit(score, (self.pantalla.get_width()//2+100, self.pantalla.get_height()//2 +50+ 25*i))    
+                    i += 1
             
             pg.display.flip()
 

@@ -86,7 +86,7 @@ class Nave(Objeto):
         self.x += self.vx
 
     def rotar(self,i):
-        self.img = pg.image.load(f"./resources/img/nave-{0}.png")
+        self.img = self.imagen_nave
         self.centro = self.img.get_rect().center
         self.angle = 18*i
         self.rot_img = pg.transform.rotate(self.img, self.angle)
