@@ -1,7 +1,7 @@
 # THE QUEST - Proyecto Fin de Bootcamp
-El juego consiste en esquivar los asteroides atraves de los diferentes niveles con el fin de conquistar planetas en los que el ser humano pueda salvar su especie.
-Captura tus astronautas para conseguir mas puntuacion.
-Conforme el nivel avanza, la velocidad y el número de asteroides irá incrementando.
+El juego consiste en esquivar los asteroides através de los diferentes niveles con el fin de conquistar planetas en los que el ser humano pueda salvar su especie.
+Captura tus astronautas para conseguir más puntuacion.
+Conforme avanzas de nivel, la velocidad y el número de asteroides irá incrementando.
 
 ## Informacion
 Desarrollado con Python 3.9
