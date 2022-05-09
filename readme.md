@@ -3,10 +3,10 @@ El juego consiste en esquivar los asteroides através de los diferentes niveles 
 Captura tus astronautas para conseguir más puntuacion.
 Conforme avanzas de nivel, la velocidad y el número de asteroides irá incrementando.
 
-## Informacion
+## Información
 Desarrollado con Python 3.9
 
-## Como instalar
+## Cómo instalar
 1. Clona repositorio
 `git clone https://github.com/alegocon/PFB_pygame`
 2. Instala dependencias, usa el archivo requirements.txt
